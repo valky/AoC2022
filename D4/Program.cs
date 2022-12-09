@@ -17,6 +17,11 @@ bool BinomeOverlapse(string binome)
         );
 }
 
+var result1 = inputs.Split("\r\n").Count(binome => BinomeOverlapse(binome));
+
+Console.WriteLine(result1);
+
+
 bool BinomeOverlapseV2(string binome)
 {
     var elfs = binome.Split(',');
@@ -26,21 +31,8 @@ bool BinomeOverlapseV2(string binome)
     var rangeElf1 = Enumerable.Range(elf1[0], elf1[1] - elf1[0] + 1);
     var rangeElf2 = Enumerable.Range(elf2[0], elf2[1] - elf2[0] + 1);
 
-    //foreach (var i in rangeElf1)
-    //    Console.Write($"{i} ");
-    //Console.WriteLine();
-    //Console.WriteLine();
-    //foreach (var i in rangeElf2)
-    //    Console.Write($"{i} ");
-    //Console.WriteLine();
-    //Console.WriteLine("-----------");
-
     return (rangeElf1.Any(i => rangeElf2.Contains(i))) || (rangeElf2.Any(i => rangeElf1.Contains(i)));
 }
-
-var result1 = inputs.Split("\r\n").Count(binome => BinomeOverlapse(binome));
-
-Console.WriteLine(result1);
 
 var result2 = inputs.Split("\r\n").Count(binome => BinomeOverlapseV2(binome));
 
