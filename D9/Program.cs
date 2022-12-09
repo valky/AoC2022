@@ -21,10 +21,10 @@ Console.WriteLine(ropePartTwo.TailsPositions.Distinct().Count());
 
 internal class Rope
 {
-    List<Position> Knots { get; }
+    List<Knot> Knots { get; }
     internal List<Position> TailsPositions { get; } = new List<Position>();
 
-    internal Rope(int knotsNumber) => Knots = Enumerable.Range(0, knotsNumber).Select(u => new Position(0, 0)).ToList();
+    internal Rope(int knotsNumber) => Knots = Enumerable.Range(0, knotsNumber).Select(u => new Knot(new Position(0, 0))).ToList();
     
 
     internal void ApplyMotions(List<Motion> motions) => motions.ForEach(m => ApplyMotion(m));
@@ -40,27 +40,27 @@ internal class Rope
                 {
                     var previousNode = Knots[index - 1];
 
-                    if (!(previousNode).Surrounding.Contains(currentNode))
+                    if (!(previousNode).Surrounding.Contains(currentNode.Position))
                     {
                         if (previousNode != currentNode) // If Head overlap Node no need to move
                         {
                             switch (motion.Direction)
                             {
                                 case 'R':
-                                    currentNode.X = previousNode.X - 1;
-                                    currentNode.Y = previousNode.Y + 0;
+                                    currentNode.Position.X = previousNode.Position.X - 1;
+                                    currentNode.Position.Y = previousNode.Position.Y + 0;
                                     break;
                                 case 'U':
-                                    currentNode.X = previousNode.X + 0;
-                                    currentNode.Y = previousNode.Y - 1;
+                                    currentNode.Position.X = previousNode.Position.X + 0;
+                                    currentNode.Position.Y = previousNode.Position.Y - 1;
                                     break;
                                 case 'L':
-                                    currentNode.X = previousNode.X + 1;
-                                    currentNode.Y = previousNode.Y + 0;
+                                    currentNode.Position.X = previousNode.Position.X + 1;
+                                    currentNode.Position.Y = previousNode.Position.Y + 0;
                                     break;
                                 case 'D':
-                                    currentNode.X = previousNode.X + 0;
-                                    currentNode.Y = previousNode.Y + 1;
+                                    currentNode.Position.X = previousNode.Position.X + 0;
+                                    currentNode.Position.Y = previousNode.Position.Y + 1;
                                     break;
                             }
                         }
@@ -71,23 +71,23 @@ internal class Rope
                     switch (motion.Direction)
                     {
                         case 'R':
-                            currentNode.X++;
+                            currentNode.Position.X++;
                             break;
                         case 'U':
-                            currentNode.Y++;
+                            currentNode.Position.Y++;
                             break;
                         case 'L':
-                            currentNode.X--;
+                            currentNode.Position.X--;
                             break;
                         case 'D':
-                            currentNode.Y--;
+                            currentNode.Position.Y--;
                             break;
                     }
                 }
 
                 if (index == Knots.Count() - 1)
                 {
-                    TailsPositions.Add(new Position(currentNode.X, currentNode.Y));
+                    TailsPositions.Add(new Position(currentNode.Position.X, currentNode.Position.Y));
                 }
             }
         }
@@ -117,35 +117,6 @@ internal class Position
     {
         this.X = x;
         this.Y = y;
-    }
-
-    /*
-        | -1,1  | 0,1  | 1,1  |
-        | -1,0  | 0,0  | 1,0  |
-        | -1,-1 | 0,-1 | 1,-1 |
-
-        0,0 is the position of H and T should be in any of this position
-    */
-    internal List<Position> Surrounding
-    {
-        get
-        {
-            return new List<Position>()
-            {
-                new Position(X - 1, Y + 1),
-                new Position(X + 0, Y + 1),
-                new Position(X + 1, Y + 1),
-
-                new Position(X - 1, Y + 0),
-                new Position(X + 0, Y + 0),
-                new Position(X + 1, Y + 0),
-
-                new Position(X - 1, Y - 1),
-                new Position(X + 0, Y - 1),
-                new Position(X + 1, Y - 1),
-            };
-
-        }
     }
 
     // The FNV prime value.
@@ -178,6 +149,43 @@ internal class Position
     {
         return $"[{X},{Y}]";
     }
+}
+
+internal class Knot
+{
+    internal Position Position { get; set; }
+
+    internal Knot(Position position) => Position = position;
+
+    /*
+    | -1,1  | 0,1  | 1,1  |
+    | -1,0  | 0,0  | 1,0  |
+    | -1,-1 | 0,-1 | 1,-1 |
+
+    0,0 is the position of H and T should be in any of this position
+    */
+    internal List<Position> Surrounding
+    {
+        get
+        {
+            return new List<Position>()
+            {
+                new Position(Position.X - 1, Position.Y + 1),
+                new Position(Position.X + 0, Position.Y + 1),
+                new Position(Position.X + 1, Position.Y + 1),
+
+                new Position(Position.X - 1, Position.Y + 0),
+                new Position(Position.X + 0, Position.Y + 0),
+                new Position(Position.X + 1, Position.Y + 0),
+
+                new Position(Position.X - 1, Position.Y - 1),
+                new Position(Position.X + 0, Position.Y - 1),
+                new Position(Position.X + 1, Position.Y - 1),
+            };
+
+        }
+    }
+
 }
 
 
