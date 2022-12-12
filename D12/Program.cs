@@ -93,7 +93,8 @@ internal class PathFinder
         {
             var location = Map.GetLocation(position);
             //|| (currentLocation.ToString() == "o" && location.ToString() == "m")    to hack a bite xD
-            if (currentLocation.Elevation == location.Elevation - 1 || currentLocation.Elevation == location.Elevation )
+            //|| currentLocation.Elevation == location.Elevation
+            if (currentLocation.Elevation >= location.Elevation - 1  )
             {
                 toExplore.Add(
                         location switch
