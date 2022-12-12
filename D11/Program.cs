@@ -1,7 +1,4 @@
-﻿
-
-
-using System.Numerics;
+﻿using System.Numerics;
 var inputs = "Monkey 0:\r\n  Starting items: 73, 77\r\n  Operation: new = old * 5\r\n  Test: divisible by 11\r\n    If true: throw to monkey 6\r\n    If false: throw to monkey 5\r\n\r\nMonkey 1:\r\n  Starting items: 57, 88, 80\r\n  Operation: new = old + 5\r\n  Test: divisible by 19\r\n    If true: throw to monkey 6\r\n    If false: throw to monkey 0\r\n\r\nMonkey 2:\r\n  Starting items: 61, 81, 84, 69, 77, 88\r\n  Operation: new = old * 19\r\n  Test: divisible by 5\r\n    If true: throw to monkey 3\r\n    If false: throw to monkey 1\r\n\r\nMonkey 3:\r\n  Starting items: 78, 89, 71, 60, 81, 84, 87, 75\r\n  Operation: new = old + 7\r\n  Test: divisible by 3\r\n    If true: throw to monkey 1\r\n    If false: throw to monkey 0\r\n\r\nMonkey 4:\r\n  Starting items: 60, 76, 90, 63, 86, 87, 89\r\n  Operation: new = old + 2\r\n  Test: divisible by 13\r\n    If true: throw to monkey 2\r\n    If false: throw to monkey 7\r\n\r\nMonkey 5:\r\n  Starting items: 88\r\n  Operation: new = old + 1\r\n  Test: divisible by 17\r\n    If true: throw to monkey 4\r\n    If false: throw to monkey 7\r\n\r\nMonkey 6:\r\n  Starting items: 84, 98, 78, 85\r\n  Operation: new = old * old\r\n  Test: divisible by 7\r\n    If true: throw to monkey 5\r\n    If false: throw to monkey 4\r\n\r\nMonkey 7:\r\n  Starting items: 98, 89, 78, 73, 71\r\n  Operation: new = old + 4\r\n  Test: divisible by 2\r\n    If true: throw to monkey 3\r\n    If false: throw to monkey 2";
 
 //var inputs = "Monkey 0:\r\n  Starting items: 79, 98\r\n  Operation: new = old * 19\r\n  Test: divisible by 23\r\n    If true: throw to monkey 2\r\n    If false: throw to monkey 3\r\n\r\nMonkey 1:\r\n  Starting items: 54, 65, 75, 74\r\n  Operation: new = old + 6\r\n  Test: divisible by 19\r\n    If true: throw to monkey 2\r\n    If false: throw to monkey 0\r\n\r\nMonkey 2:\r\n  Starting items: 79, 60, 97\r\n  Operation: new = old * old\r\n  Test: divisible by 13\r\n    If true: throw to monkey 1\r\n    If false: throw to monkey 3\r\n\r\nMonkey 3:\r\n  Starting items: 74\r\n  Operation: new = old + 3\r\n  Test: divisible by 17\r\n    If true: throw to monkey 0\r\n    If false: throw to monkey 1";
@@ -36,8 +33,13 @@ Monkeys2.ForEach(monkey => Console.WriteLine($"Monkey {monkey.MonkeyId} inspecte
 var resultPart2 = Monkeys2.OrderByDescending(monkey => monkey.NumberOfItemAnalized).Take(2).Select(m => m.NumberOfItemAnalized).Aggregate((m1, m2) => m1 * m2);
 Console.WriteLine(resultPart2);
 
+Console.WriteLine("Attention");
 
+Console.ReadLine();
 
+Console.WriteLine("Attention");
+
+Console.ReadLine();
 
 internal class Monkey
 {
@@ -58,12 +60,12 @@ internal class Monkey
         {
             var item = ItemsCarried.Dequeue();
 
-            item = EvaluateNewWorryLevel(item);
+            item.Value = EvaluateNewWorryLevel(item);
 
             BigInteger remainder;
             BigInteger.DivRem(item.Value, WorryTester,out remainder);
-
-            toThrow.Add(remainder == 0 ? new ItemThrow(item, MonkeyIdToSendIfTrue) : new ItemThrow(item, MonkeyIdToSendIfFalse));
+            
+            toThrow.Add(remainder.Equals(BigInteger.Zero) ? new ItemThrow(item, MonkeyIdToSendIfTrue) : new ItemThrow(item, MonkeyIdToSendIfFalse));
         }
         return toThrow;
     }
@@ -75,12 +77,12 @@ internal class Monkey
     private readonly int MonkeyIdToSendIfFalse;
 
 
-    private Item EvaluateNewWorryLevel(Item item)
+    private BigInteger EvaluateNewWorryLevel(Item item)
     {
         if (DevWorryLevel > 1)
-            return new Item((int)Math.Round((decimal)(EvaluateExpression(Operation.Replace("old", item.Value.ToString())) / DevWorryLevel), 0));
+            return (BigInteger)Math.Round((decimal)(EvaluateExpression(Operation.Replace("old", item.Value.ToString())) / DevWorryLevel), 0);
         else
-            return new Item(BigInteger.Parse(EvaluateExpression(Operation.Replace("old", item.Value.ToString())).ToString()));
+            return BigInteger.Parse(EvaluateExpression(Operation.Replace("old", item.Value.ToString())).ToString());
     }
 
     private BigInteger EvaluateExpression(string value)
@@ -117,7 +119,7 @@ internal class Monkey
 
 internal class Item
 {
-    internal readonly BigInteger Value;
+    internal BigInteger Value;
     internal Item(BigInteger value)
     {
         Value = value;
