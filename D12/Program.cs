@@ -1,6 +1,8 @@
-﻿//var inputs = "Sabqponm\r\nabcryxxl\r\naccszExk\r\nacctuvwj\r\nabdefghi";
+﻿using System.Text;
+
 var inputs = "abaaaaacaaaacccccccccaaaaaaccccccccccccccccccccccccccccccccccaaaaaa\r\nabaaaaacaaaaccccaaaaaaaaaacccccccccccccccccccccccccccccccccccaaaaaa\r\nabaaacccaaaaccccaaaaaaaaaaacccaacccccccccccaacccccccccccccccccaaaaa\r\nabaaaacccaacccccaaaaaaaaaaaaaaaaacccccccccccacccccccccccccccccccaaa\r\nabacaacccccccccccaaaaaaaaaaaaaaaaccccccccccaacccccccccccccccccccaaa\r\nabcccacccccccccccaaaaaaaccaaaaaaaccccccccccclllcccccacccccccccccaac\r\nabccccccccccccccccaaaaaccccccccccccccccccclllllllcccccccccccccccccc\r\nabaaacccccccccccccaaaaaccccccccccccccccaakklllllllcccccccccaacccccc\r\nabaaacccccccccccacccaaaccccccccccccccccakkklpppllllccddaaacaacccccc\r\nabaaacccaaacccccaacaaaccccccccccccccccckkkkpppppllllcddddaaaacccccc\r\nabaacccaaaacccccaaaaaccccccccccccccccckkkkpppppppllmmddddddaaaacccc\r\nabaaaccaaaaccccccaaaaaacaaacccccccccckkkkpppuuuppplmmmmdddddaaacccc\r\nabaaacccaaaccccaaaaaaaacaaaaccccccckkkkkoppuuuuuppqmmmmmmdddddacccc\r\nabcccccccccccccaaaaaaaacaaaacccccjkkkkkooppuuuuuuqqqmmmmmmmddddcccc\r\nabccccccccccccccccaaccccaaaccccjjjjkoooooouuuxuuuqqqqqqmmmmmddecccc\r\nabacaaccccccccccccaacccccccccccjjjjoooooouuuxxxuvvqqqqqqqmmmeeecccc\r\nabaaaacccccccacccaccccccccccccjjjjoootuuuuuuxxxyvvvvvqqqqmmmeeecccc\r\nabaaaaacccccaaacaaacccccccccccjjjoooottuuuuuxxyyvvvvvvvqqmnneeecccc\r\nabaaaaaccaaaaaaaaaaccccccccaccjjjooottttxxxxxxyyyyyyvvvqqnnneeecccc\r\nabaaaccccaaaaaaaaaacccccccaaccjjjoootttxxxxxxxyyyyyyvvqqqnnneeecccc\r\nSbcaaccccaaaaaaaaaaccccaaaaacajjjnnntttxxxxEzzzyyyyvvvrrqnnneeccccc\r\nabcccccccaaaaaaaaaaacccaaaaaaaajjjnnntttxxxxyyyyyvvvvrrrnnneeeccccc\r\nabcccccccaaaaaaaaaaacccccaaaaccjjjnnnnttttxxyyyyywvvrrrnnneeecccccc\r\nabcccccccccaaaaaaccaccccaaaaaccciiinnnnttxxyyyyyyywwrrnnnneeecccccc\r\nabccccccccccccaaacccccccaacaaaccciiinnnttxxyywwyyywwrrnnnffeccccccc\r\nabccccccccccccaaacccccccaccaaaccciiinnnttwwwwwwwwwwwrrrnnfffccccccc\r\nabccccccccccccccccccccccccccccccciiinnnttwwwwsswwwwwrrrnnfffccccccc\r\nabaaaccaaccccccccccccccccccccccccciinnnttswwwssswwwwrrroofffacccccc\r\nabaaccaaaaaacccccccccccccccccaaacciinnntssssssssssrrrrooofffacccccc\r\nabaccccaaaaacccccccaaacccccccaaaaciinnnssssssmmssssrrrooofffacccccc\r\nabaacaaaaaaacccccccaaaaccccccaaaaciiinmmmssmmmmmoosroooooffaaaacccc\r\nabaaaaaaaaaaaccccccaaaaccccccaaacciiimmmmmmmmmmmoooooooofffaaaacccc\r\nabcaaaaaaaaaaccccccaaaaccccccccccccihhmmmmmmmhggoooooooffffaaaccccc\r\nabcccccaaacaccccccccaaccccccccccccchhhhhhhhhhhggggggggggffaaacccccc\r\nabaccccaacccccccccccaaaccccccccccccchhhhhhhhhhgggggggggggcaaacccccc\r\nabaaaccccaccccccccccaaaacccaacccccccchhhhhhhaaaaaggggggcccccccccccc\r\nabaaaccccaaacaaaccccaaaacaaaacccccccccccccccaaaacccccccccccccccaaac\r\nabaacccccaaaaaaaccccaaaaaaaaacccccccccccccccaaacccccccccccccccccaaa\r\nabaaaccccaaaaaaccccaaaaaaaaccccccccccccccccccaacccccccccccccccccaaa\r\nabccccccaaaaaaaaaaaaaaaaaaacccccccccccccccccaaccccccccccccccccaaaaa\r\nabcccccaaaaaaaaaaaaaaaaaaaaacccccccccccccccccccccccccccccccccaaaaaa";
 
+//var inputs = "Sabqponm\r\nabcryxxl\r\naccszExk\r\nacctuvwj\r\nabdefghi";
 
 var map = new Map(inputs);
 
@@ -29,8 +31,19 @@ internal class Map
         }
     }
 
+    internal void DrawMap(Location loc)
+    {
+        Console.Clear();
+        var sb = new StringBuilder();
+        foreach (var Y in Enumerable.Range(0, Locations.Max(l => l.Position.Y) + 1))
+        {
+            sb.AppendLine(string.Concat(Locations.Where(l => l.Position.Y == Y).OrderBy(l => l.Position.X).Select(l => l.Equals(loc) ? " " : l.ToString())));
+        }
+        Console.WriteLine(sb.ToString());
+    }
+
     internal Location GetLocation(Position pos)
-        => Locations.First(l => (l.Position.X == pos.X) && (l.Position.Y == pos.Y));
+        => Locations.First(l => (l.Position.Equals(pos)));
 
     private Location ParseLocationSignal(char elevation, int X, int Y)
         => elevation switch
@@ -70,13 +83,17 @@ internal class PathFinder
 
     private void ExploreMap(PathNode currentNode, List<PathNode> alreadyExplored)
     {
+
         var currentLocation = Map.GetLocation(currentNode.Position);
+        Map.DrawMap(currentLocation);
+
         var toExplore = new List<PathNode>();
 
         foreach (var position in GetPossiblePositions(currentNode.Position))
         {
             var location = Map.GetLocation(position);
-            if (currentLocation.Elevation == location.Elevation - 1 || currentLocation.Elevation == location.Elevation)
+            //|| (currentLocation.ToString() == "o" && location.ToString() == "m")    to hack a bite xD
+            if (currentLocation.Elevation == location.Elevation - 1 || currentLocation.Elevation == location.Elevation )
             {
                 toExplore.Add(
                         location switch
@@ -100,6 +117,8 @@ internal class PathFinder
             .Where(n => typeof(EndLocation) != n.GetType())
             .ToList()
             .ForEach(pn => ExploreMap(pn, alreadyExplored.Append(pn).ToList()));
+
+        alreadyExplored.Clear();
     }
 
     private List<Position> GetPossiblePositions(Position pos)
