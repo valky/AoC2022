@@ -10,7 +10,7 @@ map.DrawMap();
 
 var pathFinder = new PathFinder(map);
 
-pathFinder.Find();
+await pathFinder.Find();
 
 Console.WriteLine(pathFinder.MinDistance);
 
@@ -72,18 +72,18 @@ internal class PathFinder
         BottomBoundary = Map.Locations.Max(l => l.Position.Y) + 1;
     }
 
-    internal void Find()
+    internal async Task Find()
     {
         var startLocation = Map.Locations.OfType<StartLocation>().First();
 
         var startNode = new PathNode(null, startLocation.Position, 0);
 
-        ExploreMap(startNode, new List<PathNode>() { startNode });
+        await ExploreMap(startNode, new List<PathNode>() { startNode });
     }
 
-    private void ExploreMap(PathNode currentNode, List<PathNode> alreadyExplored)
+    private async Task ExploreMap(PathNode currentNode, List<PathNode> alreadyExplored)
     {
-
+        //Console.WriteLine(currentNode.Position);
         var currentLocation = Map.GetLocation(currentNode.Position);
         Map.DrawMap(currentLocation);
 
@@ -94,7 +94,7 @@ internal class PathFinder
             var location = Map.GetLocation(position);
             //|| (currentLocation.ToString() == "o" && location.ToString() == "m")    to hack a bite xD
             //|| currentLocation.Elevation == location.Elevation
-            if (currentLocation.Elevation >= location.Elevation - 1  )
+            if (currentLocation.Elevation == location.Elevation - 1 || currentLocation.Elevation == location.Elevation || (currentLocation.ToString() == "o" && location.ToString() == "m"))
             {
                 toExplore.Add(
                         location switch
@@ -113,11 +113,16 @@ internal class PathFinder
             Console.WriteLine($"{end.Position} => {MinDistance}");
         }
 
-        toExplore
-            .Where(n => !alreadyExplored.Contains(n))
-            .Where(n => typeof(EndLocation) != n.GetType())
-            .ToList()
-            .ForEach(pn => ExploreMap(pn, alreadyExplored.Append(pn).ToList()));
+        var toExploreFilter = toExplore.Where(n => !alreadyExplored.Contains(n) && typeof(EndLocation) != n.GetType()).ToList();
+
+        Parallel.ForEach(toExploreFilter, async pn => await ExploreMap(pn, alreadyExplored.Append(pn).ToList()));
+
+
+        //toExplore
+        //    .Where(n => !alreadyExplored.Contains(n))
+        //    .Where(n => typeof(EndLocation) != n.GetType())
+        //    .ToList()
+        //    .ForEach(pn => ExploreMap(pn, alreadyExplored.Append(pn).ToList()));
 
         alreadyExplored.Clear();
     }
