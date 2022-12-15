@@ -34,13 +34,13 @@ internal class Map
 
     internal void DrawMap(Position loc, int mindistance)
     {
-        //Console.Clear();
-        //var sb = new StringBuilder();
-        //foreach (var Y in Enumerable.Range(0, Locations.Max(l => l.Position.Y) + 1))
-        //{
-        //    sb.AppendLine(string.Concat(Locations.Where(l => l.Position.Y == Y).OrderBy(l => l.Position.X).Select(l => l.Position.Equals(loc) ? " " : l.ToString())));
-        //}
-        //Console.WriteLine(sb.ToString());
+        Console.Clear();
+        var sb = new StringBuilder();
+        foreach (var Y in Enumerable.Range(0, Locations.Max(l => l.Position.Y) + 1))
+        {
+            sb.AppendLine(string.Concat(Locations.Where(l => l.Position.Y == Y).OrderBy(l => l.Position.X).Select(l => l.Position.Equals(loc) ? " " : l.ToString())));
+        }
+        Console.WriteLine(sb.ToString());
         Console.WriteLine(mindistance);
 
         //Thread.Sleep(1);
@@ -110,20 +110,7 @@ internal class PathFinder
         var currentLocation = Map.GetLocation(currentNode.Position);
         Map.DrawMap(currentNode.Position, MinDistance);
 
-        //foreach (var nextPosition in GetSurroundingPositions(currentNode.Position))
-        //{
-        //    var nextLocation = Map.GetLocation(nextPosition);
-
-        //    if (CanGoUp(currentNode.Elevation, nextLocation.Elevation) && IsNotalreadyEcploredOrShortest(nextPosition, currentNode.Distance +1))
-        //    {
-        //        if(typeof(EndLocation) != nextLocation.GetType())
-        //            ExploreMap(new(currentNode, nextPosition, currentNode.Distance + 1, nextLocation.Elevation));
-        //        else
-        //            MinDistance = MinDistance > currentNode.Distance + 1 ? currentNode.Distance + 1 : MinDistance;
-        //    }
-        //}
-
-        Parallel.ForEach(GetSurroundingPositions(currentNode.Position), nextPosition =>
+        foreach (var nextPosition in GetSurroundingPositions(currentNode.Position))
         {
             var nextLocation = Map.GetLocation(nextPosition);
 
@@ -134,7 +121,7 @@ internal class PathFinder
                 else
                     MinDistance = MinDistance > currentNode.Distance + 1 ? currentNode.Distance + 1 : MinDistance;
             }
-        });
+        }
     }
 
     private List<Position> GetSurroundingPositions(Position pos)
