@@ -47,20 +47,20 @@ internal class Pair
             {
                 case '[' when currentPacketData is IntPacketDatas cpd:
                     var parent = cpd.Parent;
-                    parent.Childs.Add(new ArrayPacketDatas(parent));
+                    parent.Childs.Add(new ListPacketDatas(parent));
                     currentPacketData = parent.Childs.Last();
                     break;
-                case '[' when currentPacketData is ArrayPacketDatas cpd:
-                    cpd.Childs.Add(new ArrayPacketDatas(cpd));
+                case '[' when currentPacketData is ListPacketDatas cpd:
+                    cpd.Childs.Add(new ListPacketDatas(cpd));
                     currentPacketData = cpd.Childs.Last();
                     break;
                 case ']' when currentPacketData is IntPacketDatas:
                     currentPacketData = currentPacketData.Parent.Parent;
                     break;
-                case ']' when currentPacketData is ArrayPacketDatas:
+                case ']' when currentPacketData is ListPacketDatas:
                     currentPacketData = currentPacketData.Parent;
                     break;
-                case char d when char.IsDigit(d) && currentPacketData is ArrayPacketDatas cpd:
+                case char d when char.IsDigit(d) && currentPacketData is ListPacketDatas cpd:
                     IntPacketDatas newData = new IntPacketDatas(cpd);
                     newData.Values.Add(int.Parse(c.ToString()));
                     cpd.Childs.Add(newData);
@@ -82,19 +82,19 @@ internal class Pair
 
 internal class PacketDatas
 {
-    internal ArrayPacketDatas? Parent = null!;
+    internal ListPacketDatas? Parent = null!;
 
-    internal PacketDatas(ArrayPacketDatas parent)
+    internal PacketDatas(ListPacketDatas parent)
     {
         Parent = parent;
     }
 }
 
-internal class ArrayPacketDatas : PacketDatas
+internal class ListPacketDatas : PacketDatas
 {
     internal List<PacketDatas> Childs = new List<PacketDatas>();
 
-    internal ArrayPacketDatas(ArrayPacketDatas parent) : base(parent){ }
+    internal ListPacketDatas(ListPacketDatas parent) : base(parent){ }
 
     public override string ToString()
     => "[" +
@@ -108,7 +108,7 @@ internal class ArrayPacketDatas : PacketDatas
     "]";
 }
 
-internal class RootPacketDatas : ArrayPacketDatas
+internal class RootPacketDatas : ListPacketDatas
 {
     internal RootPacketDatas() : base(null){}
 }
@@ -116,7 +116,7 @@ internal class RootPacketDatas : ArrayPacketDatas
 internal class IntPacketDatas : PacketDatas
 { 
     internal List<int> Values = new List<int>();
-    internal IntPacketDatas(ArrayPacketDatas parent) : base(parent) {}
+    internal IntPacketDatas(ListPacketDatas parent) : base(parent) {}
 
     public override string ToString()
         => String.Join(",", Values);
