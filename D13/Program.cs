@@ -40,7 +40,7 @@ internal class Pair
     {
         var newPacket = new Packet();
         PacketDatas currentPacketData = newPacket.Root;
-        part = part[1..^1]; // removez first and last char , should be []
+        part = part[1..^1]; // remove first and last char , should be []
         foreach (char c in part)
         {
             switch (c)
@@ -77,7 +77,6 @@ internal class Pair
         }
         return newPacket;
     }
-
 }
 
 internal class PacketDatas
