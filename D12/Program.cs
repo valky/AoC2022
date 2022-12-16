@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Text;
+﻿using System.Text;
 
 var inputs = "abaaaaacaaaacccccccccaaaaaaccccccccccccccccccccccccccccccccccaaaaaa\r\nabaaaaacaaaaccccaaaaaaaaaacccccccccccccccccccccccccccccccccccaaaaaa\r\nabaaacccaaaaccccaaaaaaaaaaacccaacccccccccccaacccccccccccccccccaaaaa\r\nabaaaacccaacccccaaaaaaaaaaaaaaaaacccccccccccacccccccccccccccccccaaa\r\nabacaacccccccccccaaaaaaaaaaaaaaaaccccccccccaacccccccccccccccccccaaa\r\nabcccacccccccccccaaaaaaaccaaaaaaaccccccccccclllcccccacccccccccccaac\r\nabccccccccccccccccaaaaaccccccccccccccccccclllllllcccccccccccccccccc\r\nabaaacccccccccccccaaaaaccccccccccccccccaakklllllllcccccccccaacccccc\r\nabaaacccccccccccacccaaaccccccccccccccccakkklpppllllccddaaacaacccccc\r\nabaaacccaaacccccaacaaaccccccccccccccccckkkkpppppllllcddddaaaacccccc\r\nabaacccaaaacccccaaaaaccccccccccccccccckkkkpppppppllmmddddddaaaacccc\r\nabaaaccaaaaccccccaaaaaacaaacccccccccckkkkpppuuuppplmmmmdddddaaacccc\r\nabaaacccaaaccccaaaaaaaacaaaaccccccckkkkkoppuuuuuppqmmmmmmdddddacccc\r\nabcccccccccccccaaaaaaaacaaaacccccjkkkkkooppuuuuuuqqqmmmmmmmddddcccc\r\nabccccccccccccccccaaccccaaaccccjjjjkoooooouuuxuuuqqqqqqmmmmmddecccc\r\nabacaaccccccccccccaacccccccccccjjjjoooooouuuxxxuvvqqqqqqqmmmeeecccc\r\nabaaaacccccccacccaccccccccccccjjjjoootuuuuuuxxxyvvvvvqqqqmmmeeecccc\r\nabaaaaacccccaaacaaacccccccccccjjjoooottuuuuuxxyyvvvvvvvqqmnneeecccc\r\nabaaaaaccaaaaaaaaaaccccccccaccjjjooottttxxxxxxyyyyyyvvvqqnnneeecccc\r\nabaaaccccaaaaaaaaaacccccccaaccjjjoootttxxxxxxxyyyyyyvvqqqnnneeecccc\r\nSbcaaccccaaaaaaaaaaccccaaaaacajjjnnntttxxxxEzzzyyyyvvvrrqnnneeccccc\r\nabcccccccaaaaaaaaaaacccaaaaaaaajjjnnntttxxxxyyyyyvvvvrrrnnneeeccccc\r\nabcccccccaaaaaaaaaaacccccaaaaccjjjnnnnttttxxyyyyywvvrrrnnneeecccccc\r\nabcccccccccaaaaaaccaccccaaaaaccciiinnnnttxxyyyyyyywwrrnnnneeecccccc\r\nabccccccccccccaaacccccccaacaaaccciiinnnttxxyywwyyywwrrnnnffeccccccc\r\nabccccccccccccaaacccccccaccaaaccciiinnnttwwwwwwwwwwwrrrnnfffccccccc\r\nabccccccccccccccccccccccccccccccciiinnnttwwwwsswwwwwrrrnnfffccccccc\r\nabaaaccaaccccccccccccccccccccccccciinnnttswwwssswwwwrrroofffacccccc\r\nabaaccaaaaaacccccccccccccccccaaacciinnntssssssssssrrrrooofffacccccc\r\nabaccccaaaaacccccccaaacccccccaaaaciinnnssssssmmssssrrrooofffacccccc\r\nabaacaaaaaaacccccccaaaaccccccaaaaciiinmmmssmmmmmoosroooooffaaaacccc\r\nabaaaaaaaaaaaccccccaaaaccccccaaacciiimmmmmmmmmmmoooooooofffaaaacccc\r\nabcaaaaaaaaaaccccccaaaaccccccccccccihhmmmmmmmhggoooooooffffaaaccccc\r\nabcccccaaacaccccccccaaccccccccccccchhhhhhhhhhhggggggggggffaaacccccc\r\nabaccccaacccccccccccaaaccccccccccccchhhhhhhhhhgggggggggggcaaacccccc\r\nabaaaccccaccccccccccaaaacccaacccccccchhhhhhhaaaaaggggggcccccccccccc\r\nabaaaccccaaacaaaccccaaaacaaaacccccccccccccccaaaacccccccccccccccaaac\r\nabaacccccaaaaaaaccccaaaaaaaaacccccccccccccccaaacccccccccccccccccaaa\r\nabaaaccccaaaaaaccccaaaaaaaaccccccccccccccccccaacccccccccccccccccaaa\r\nabccccccaaaaaaaaaaaaaaaaaaacccccccccccccccccaaccccccccccccccccaaaaa\r\nabcccccaaaaaaaaaaaaaaaaaaaaacccccccccccccccccccccccccccccccccaaaaaa";
 
@@ -61,10 +60,11 @@ internal class Map
 
 internal class PathFinder
 {
+    Queue<PathNode> ToExplore = new Queue<PathNode>();
     HashSet<PathNode> AlreadyExplored = new HashSet<PathNode>();
 
     internal readonly Map Map;
-    internal int MinDistance { get; private set; } = 467;//int.MaxValue;
+    internal int MinDistance { get; private set; } = int.MaxValue;
 
     private readonly int RightBoundary;
     private readonly int BottomBoundary;
@@ -79,7 +79,13 @@ internal class PathFinder
     internal void Find()
     {
         var startLocation = Map.Locations.OfType<StartLocation>().First();
-        ExploreMap(new(null, startLocation.Position, 0, 0));
+        ToExplore.Enqueue(new(null, startLocation.Position, 0, 0));
+
+        while (ToExplore.Any())
+        {
+            var nodeToExplore = ToExplore.Dequeue();
+            ExploreMap(nodeToExplore);
+        }
     }
 
     private void ExploreMap(PathNode currentNode)
@@ -107,17 +113,17 @@ internal class PathFinder
         if (currentNode.Distance > MinDistance)
             return;
 
-        var currentLocation = Map.GetLocation(currentNode.Position);
-        Map.DrawMap(currentNode.Position, MinDistance);
+        //var currentLocation = Map.GetLocation(currentNode.Position);
+        //Map.DrawMap(currentNode.Position, MinDistance);
 
         foreach (var nextPosition in GetSurroundingPositions(currentNode.Position))
         {
             var nextLocation = Map.GetLocation(nextPosition);
 
-            if (CanGoUp(currentNode.Elevation, nextLocation.Elevation) && IsNotalreadyEcploredOrShortest(nextPosition, currentNode.Distance + 1))
+            if (CanGoUp(currentNode.Elevation, nextLocation.Elevation) && IsNotalreadyEcploredOrShortest(nextPosition, currentNode.Distance + 1) && !ToExplore.Any(node => node.Position.Equals(nextPosition)))
             {
                 if (typeof(EndLocation) != nextLocation.GetType())
-                    ExploreMap(new(currentNode, nextPosition, currentNode.Distance + 1, nextLocation.Elevation));
+                    ToExplore.Enqueue(new(currentNode, nextPosition, currentNode.Distance + 1, nextLocation.Elevation));
                 else
                     MinDistance = MinDistance > currentNode.Distance + 1 ? currentNode.Distance + 1 : MinDistance;
             }
