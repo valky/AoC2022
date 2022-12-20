@@ -12,7 +12,7 @@ var testCave = "498,4 -> 498,6 -> 496,6\r\n503,4 -> 502,4 -> 502,9 -> 494,9";
 var scanP1 = new Scan(realCave);
 scanP1.SimulateSandDrops();
 scanP1.DrawCave();
-Console.WriteLine($"RealP1 : {scanP1.CaveScan.Sands.Count() - 1}");
+Console.WriteLine($"RealP1 : {scanP1.CaveScan.Sands.Count()}");
 
 internal record Point(int X, int Y);
 
